@@ -5,6 +5,7 @@ import com.querymind.dto.QueryResult;
 import com.querymind.exception.QueryExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,18 @@ public class SqlExecutionService {
     private final JdbcTemplate jdbcTemplate;
     private final ExecutionProperties executionProperties;
 
+    @Autowired
     public SqlExecutionService(JdbcTemplate jdbcTemplate, ExecutionProperties executionProperties) {
         this.jdbcTemplate = jdbcTemplate;
         this.executionProperties = executionProperties;
+    }
+
+    /**
+     * Protected no-arg constructor for testing and stubbing.
+     */
+    protected SqlExecutionService() {
+        this.jdbcTemplate = null;
+        this.executionProperties = null;
     }
 
     /**

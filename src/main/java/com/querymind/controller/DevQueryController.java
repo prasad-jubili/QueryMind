@@ -2,6 +2,7 @@ package com.querymind.controller;
 
 import com.querymind.dto.QueryResult;
 import com.querymind.service.SqlExecutionService;
+import com.querymind.service.SqlGenerationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * Developer-only controller for testing fixed, hard-coded read-only queries in Milestone 2.
- * Does NOT accept arbitrary SQL from clients.
+ * Developer-only controller for testing isolated milestones.
+ * In Milestone 2: tests fixed queries.
+ * In Milestone 3: tests AI SQL generation (returns generated SQL without executing it).
  */
 @RestController
 @RequestMapping("/api/dev")
@@ -43,9 +45,11 @@ public class DevQueryController {
     );
 
     private final SqlExecutionService sqlExecutionService;
+    private final SqlGenerationService sqlGenerationService;
 
-    public DevQueryController(SqlExecutionService sqlExecutionService) {
+    public DevQueryController(SqlExecutionService sqlExecutionService, SqlGenerationService sqlGenerationService) {
         this.sqlExecutionService = sqlExecutionService;
+        this.sqlGenerationService = sqlGenerationService;
     }
 
     @GetMapping("/sample-query")
@@ -59,5 +63,18 @@ public class DevQueryController {
 
         QueryResult result = sqlExecutionService.executeQuery(sql);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Milestone 3 test endpoint: accepts a question and returns the generated SQL.
+     * Crucially, does NOT execute the SQL.
+     */
+    @GetMapping("/generate-sql")
+    public ResponseEntity<Map<String, String>> generateSql(@RequestParam String question) {
+        String generatedSql = sqlGenerationService.generateSql(question);
+        return ResponseEntity.ok(Map.of(
+                "question", question,
+                "generatedSql", generatedSql
+        ));
     }
 }
